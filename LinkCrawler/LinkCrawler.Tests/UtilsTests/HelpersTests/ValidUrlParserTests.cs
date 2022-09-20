@@ -1,6 +1,8 @@
 ﻿using LinkCrawler.Utils.Parsers;
 using LinkCrawler.Utils.Settings;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace LinkCrawler.Tests.UtilsTests.HelpersTests
 {
@@ -11,7 +13,11 @@ namespace LinkCrawler.Tests.UtilsTests.HelpersTests
         [SetUp]
         public void SetUp()
         {
-            ValidUrlParser = new ValidUrlParser(new Settings());
+            IConfiguration configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            ValidUrlParser = new ValidUrlParser(new Settings(configuration));
         }
 
         [Test]

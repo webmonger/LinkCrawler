@@ -1,5 +1,6 @@
 ﻿using LinkCrawler.Utils.Extensions;
 using LinkCrawler.Utils.Settings;
+using Microsoft.Extensions.Options;
 using System;
 using System.Text.RegularExpressions;
 
@@ -9,6 +10,7 @@ namespace LinkCrawler.Utils.Parsers
     {
         public Regex Regex { get; set; }
         public string BaseUrl { get; set; }
+
         public ValidUrlParser(ISettings settings)
         {
             Regex = new Regex(settings.ValidUrlRegex);

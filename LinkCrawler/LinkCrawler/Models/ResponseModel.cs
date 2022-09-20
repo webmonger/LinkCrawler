@@ -17,7 +17,7 @@ namespace LinkCrawler.Models
         public bool IsSuccess { get; }
         public bool ShouldCrawl { get; }
 
-        public ResponseModel(IRestResponse restResponse, RequestModel requestModel, ISettings settings)
+        public ResponseModel(RestResponse restResponse, RequestModel requestModel, ISettings settings)
         {
             ReferrerUrl = requestModel.ReferrerUrl;
             StatusCode = restResponse.StatusCode;

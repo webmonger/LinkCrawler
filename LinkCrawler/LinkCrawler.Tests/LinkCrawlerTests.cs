@@ -3,6 +3,7 @@ using LinkCrawler.Utils.Clients;
 using LinkCrawler.Utils.Outputs;
 using LinkCrawler.Utils.Parsers;
 using LinkCrawler.Utils.Settings;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using NUnit.Framework;
 using System.Linq;
@@ -20,8 +21,12 @@ namespace LinkCrawler.Tests
         [SetUp]
         public void SetUp()
         {
+            IConfiguration configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+
             MockSlackClient = new Mock<ISlackClient>();
-            Settings = new Settings();
+            Settings = new Settings(configuration);
             var parser = new ValidUrlParser(Settings);
             var outputs = new IOutput[]
             {

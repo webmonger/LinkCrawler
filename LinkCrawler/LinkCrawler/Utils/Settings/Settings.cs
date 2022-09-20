@@ -1,4 +1,5 @@
 ﻿using LinkCrawler.Utils.Extensions;
+using Microsoft.Extensions.Configuration;
 using System.Configuration;
 using System.Net;
 
@@ -6,45 +7,40 @@ namespace LinkCrawler.Utils.Settings
 {
     public class Settings : ISettings
     {
-        public string BaseUrl =>
-            ConfigurationManager.AppSettings[Constants.AppSettings.BaseUrl].Trim('/');
+        private readonly IConfiguration configuration;
 
-        public string ValidUrlRegex =>
-            ConfigurationManager.AppSettings[Constants.AppSettings.ValidUrlRegex];
+        public Settings(IConfiguration configuration)
+        {
+            this.configuration = configuration;
+        }
 
-        public bool CheckImages =>
-            ConfigurationManager.AppSettings[Constants.AppSettings.CheckImages].ToBool();
+        public string BaseUrl => configuration[Constants.AppSettings.RootConfig + Constants.AppSettings.BaseUrl].Trim('/');
 
-        public bool OnlyReportBrokenLinksToOutput =>
-            ConfigurationManager.AppSettings[Constants.AppSettings.OnlyReportBrokenLinksToOutput].ToBool();
+        public string ValidUrlRegex => configuration[Constants.AppSettings.RootConfig + Constants.AppSettings.ValidUrlRegex];
 
-        public string SlackWebHookUrl =>
-            ConfigurationManager.AppSettings[Constants.AppSettings.SlackWebHookUrl];
+        public bool CheckImages => configuration[Constants.AppSettings.RootConfig + Constants.AppSettings.CheckImages].ToBool();
 
-        public string SlackWebHookBotName =>
-            ConfigurationManager.AppSettings[Constants.AppSettings.SlackWebHookBotName];
+        public bool OnlyReportBrokenLinksToOutput => configuration[Constants.AppSettings.RootConfig + Constants.AppSettings.OnlyReportBrokenLinksToOutput].ToBool();
 
-        public string SlackWebHookBotIconEmoji =>
-            ConfigurationManager.AppSettings[Constants.AppSettings.SlackWebHookBotIconEmoji];
+        public string SlackWebHookUrl => configuration[Constants.AppSettings.RootConfig + Constants.AppSettings.SlackWebHookUrl];
 
-        public string SlackWebHookBotMessageFormat =>
-            ConfigurationManager.AppSettings[Constants.AppSettings.SlackWebHookBotMessageFormat];
+        public string SlackWebHookBotName => configuration[Constants.AppSettings.RootConfig + Constants.AppSettings.SlackWebHookBotName];
 
-        public string CsvFilePath =>
-            ConfigurationManager.AppSettings[Constants.AppSettings.CsvFilePath];
+        public string SlackWebHookBotIconEmoji => configuration[Constants.AppSettings.RootConfig + Constants.AppSettings.SlackWebHookBotIconEmoji];
 
-        public bool CsvOverwrite =>
-            ConfigurationManager.AppSettings[Constants.AppSettings.CsvOverwrite].ToBool();
+        public string SlackWebHookBotMessageFormat => configuration[Constants.AppSettings.RootConfig + Constants.AppSettings.SlackWebHookBotMessageFormat];
 
-        public string CsvDelimiter =>
-            ConfigurationManager.AppSettings[Constants.AppSettings.CsvDelimiter];
+        public string CsvFilePath => configuration[Constants.AppSettings.RootConfig + Constants.AppSettings.CsvFilePath];
 
-        public bool PrintSummary =>
-            ConfigurationManager.AppSettings[Constants.AppSettings.PrintSummary].ToBool();
+        public bool CsvOverwrite => configuration[Constants.AppSettings.RootConfig + Constants.AppSettings.CsvOverwrite].ToBool();
+
+        public string CsvDelimiter => configuration[Constants.AppSettings.RootConfig + Constants.AppSettings.CsvDelimiter];
+
+        public bool PrintSummary => configuration[Constants.AppSettings.RootConfig + Constants.AppSettings.PrintSummary].ToBool();
 
         public bool IsSuccess(HttpStatusCode statusCode)
         {
-            var configuredCodes = ConfigurationManager.AppSettings[Constants.AppSettings.SuccessHttpStatusCodes] ?? "";
+            var configuredCodes = configuration[Constants.AppSettings.RootConfig + Constants.AppSettings.SuccessHttpStatusCodes] ?? "";
             return statusCode.IsSuccess(configuredCodes);
         }
     }

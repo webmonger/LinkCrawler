@@ -1,8 +1,9 @@
-﻿using LinkCrawler.Utils;
-using StructureMap;
-using System;
+﻿using System;
 using LinkCrawler.Utils.Parsers;
 using LinkCrawler.Utils.Settings;
+using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
+using LinkCrawler.Utils.Outputs;
 
 namespace LinkCrawler
 {
@@ -10,21 +11,34 @@ namespace LinkCrawler
     {
         static void Main(string[] args)
         {
-            
-            using (var container = Container.For<StructureMapRegistry>())
+            IServiceCollection services = new ServiceCollection();
+            Startup startup = new Startup();
+
+            startup.ConfigureServices(services);
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            Run(args, serviceProvider);
+        }
+
+        static void Run(string[] args, ServiceProvider serviceProvider)
+        {
+            var settings = serviceProvider.GetService<ISettings>();
+
+            List<IOutput> outputs = new List<IOutput>();
+            outputs.Add(serviceProvider.GetService<IOutput>());
+
+            var linkCrawler = new LinkCrawler(outputs, serviceProvider.GetService<IValidUrlParser>(), settings);
+            if (args.Length > 0)
             {
-                var linkCrawler = container.GetInstance<LinkCrawler>();
-                if (args.Length >0)
-                {
-                    string parsed;
-                    var validUrlParser = new ValidUrlParser(new Settings());
-                    var result = validUrlParser.Parse(args[0], out parsed);
-                    if(result)
+                string parsed;
+                var validUrlParser = new ValidUrlParser(settings);
+                var result = validUrlParser.Parse(args[0], out parsed);
+                if (result)
                     linkCrawler.BaseUrl = parsed;
-                }
-                linkCrawler.Start();
-                Console.Read();
             }
+            linkCrawler.Start();
+            Console.Read();
         }
     }
 }

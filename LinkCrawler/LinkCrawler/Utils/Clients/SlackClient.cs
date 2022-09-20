@@ -32,7 +32,7 @@ namespace LinkCrawler.Utils.Clients
             var message = string.Format(MessageFormat, responseModel.RequestedUrl, responseModel.StatusCodeNumber, responseModel.ReferrerUrl);
 
             var client = new RestClient(WebHookUrl);
-            var request = new RestRequest(Method.POST) { RequestFormat = DataFormat.Json };
+            var request = new RestRequest(WebHookUrl, Method.Post) { RequestFormat = DataFormat.Json };
             request.AddBody(
                 new
                 {
@@ -42,7 +42,7 @@ namespace LinkCrawler.Utils.Clients
                     mrkdwn = true
                 });
 
-            client.ExecuteAsync(request, null);
+            client.ExecuteAsync(request, new System.Threading.CancellationToken());
         }
     }
 }

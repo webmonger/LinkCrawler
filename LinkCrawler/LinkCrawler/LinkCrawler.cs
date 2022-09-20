@@ -9,10 +9,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LinkCrawler
 {
-    public class LinkCrawler
+    public class LinkCrawler : ILinkCrawler
     {
         public string BaseUrl { get; set; }
         public bool CheckImages { get; set; }
@@ -31,7 +32,7 @@ namespace LinkCrawler
             ValidUrlParser = validUrlParser;
             CheckImages = settings.CheckImages;
             UrlList = new List<LinkModel>();
-            RestRequest = new RestRequest(Method.GET).SetHeader("Accept", "*/*");
+            RestRequest = new RestRequest().SetHeader("Accept", "*/*");
             OnlyReportBrokenLinksToOutput = settings.OnlyReportBrokenLinksToOutput;
             _settings = settings;
             this.timer = new Stopwatch();
@@ -41,22 +42,22 @@ namespace LinkCrawler
         {
             this.timer.Start();
             UrlList.Add(new LinkModel(BaseUrl));
-            SendRequest(BaseUrl);
+            SendRequestAsync(BaseUrl);
         }
 
-        public void SendRequest(string crawlUrl, string referrerUrl = "")
+        public async Task SendRequestAsync(string crawlUrl, string referrerUrl = "")
         {
             var requestModel = new RequestModel(crawlUrl, referrerUrl, BaseUrl);
-            var restClient = new RestClient(new Uri(crawlUrl)) { FollowRedirects = false };
+            var restClientOptions = new RestClientOptions(new Uri(crawlUrl)) { FollowRedirects = false };
+            var restClient = new RestClient(restClientOptions);
 
-            restClient.ExecuteAsync(RestRequest, response =>
-            {
-                if (response == null)
-                    return;
+            var response = await restClient.ExecuteAsync(RestRequest, new System.Threading.CancellationToken());
 
-                var responseModel = new ResponseModel(response, requestModel, _settings);
-                ProcessResponse(responseModel);
-            });
+            if (response == null)
+                return;
+
+            var responseModel = new ResponseModel(response, requestModel, _settings);
+            ProcessResponse(responseModel);
         }
 
         public void ProcessResponse(IResponseModel responseModel)
@@ -80,7 +81,7 @@ namespace LinkCrawler
 
                     UrlList.Add(new LinkModel(url));
                 }
-                SendRequest(url, responseModel.RequestedUrl);
+                SendRequestAsync(url, responseModel.RequestedUrl);
             }
         }
 
@@ -138,7 +139,7 @@ namespace LinkCrawler
                 messages.Add(" -------+--------");
 
                 IEnumerable<IGrouping<int, string>> StatusSummary = UrlList.GroupBy(link => link.StatusCode, link => link.Address);
-                foreach(IGrouping<int,string> statusGroup in StatusSummary)
+                foreach (IGrouping<int, string> statusGroup in StatusSummary)
                 {
                     messages.Add(String.Format("   {0}  | {1,5}", statusGroup.Key, statusGroup.Count()));
                 }

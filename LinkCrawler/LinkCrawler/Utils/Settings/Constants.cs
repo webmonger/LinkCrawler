@@ -4,6 +4,7 @@
     {
         public static class AppSettings
         {
+            public const string RootConfig = "appSettings:";
             public const string BaseUrl = "BaseUrl";
             public const string ValidUrlRegex = "ValidUrlRegex";
             public const string OnlyReportBrokenLinksToOutput = "OnlyReportBrokenLinksToOutput";
